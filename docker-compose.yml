@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  nicasource-server:
-    container_name: nicasource-server
+  api-server:
+    container_name: api-server
     restart: always
     build: .
     ports:
