@@ -1,18 +1,12 @@
 import express, { type Express, type Request, type Response } from 'express'
 import logger from 'morgan'
-import dotenv from 'dotenv'
-import { sequelize } from './database/database'
-
-dotenv.config()
+import { PORT } from './lib/config'
+import { initConnection } from './database'
+import './models'
 
 async function App () {
   // Database
-  try {
-    await sequelize().authenticate()
-    console.log('🟢 Database successfully connected')
-  } catch (error) {
-    console.error('🔴 Unable to connect to the database')
-  }
+  await initConnection()
 
   // Express app
   const app: Express = express()
@@ -27,11 +21,9 @@ async function App () {
     res.send('Hello World!')
   })
 
-  // Port
-  const port = process.env.PORT ?? 3000
-
-  app.listen(port, () => {
-    console.log(`🚀 Server is running at http://localhost:${port}`)
+  // Listener
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running at http://localhost:${PORT}`)
   })
 }
 
