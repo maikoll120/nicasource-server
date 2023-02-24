@@ -1,9 +1,25 @@
 version: '3.8'
 services:
-  api-server:
-    container_name: api-server
+  nicasource-server:
+    container_name: nicasource-server
     restart: always
     build: .
     ports:
       - ${PORT}:${PORT}
-      
+    depends_on:
+      - nicasource-db
+
+  nicasource-db:
+    container_name: nicasource-db
+    image: postgres
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+
+volumes: 
+  data: {}

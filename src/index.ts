@@ -1,26 +1,38 @@
 import express, { type Express, type Request, type Response } from 'express'
 import logger from 'morgan'
 import dotenv from 'dotenv'
+import { sequelize } from './database/database'
 
-// Environment
 dotenv.config()
 
-// Express app
-const app: Express = express()
+async function App () {
+  // Database
+  try {
+    await sequelize().authenticate()
+    console.log('🟢 Database successfully connected')
+  } catch (error) {
+    console.error('🔴 Unable to connect to the database')
+  }
 
-// Middlewares
-app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+  // Express app
+  const app: Express = express()
 
-// Routes
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
-})
+  // Middlewares
+  app.use(logger('dev'))
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: false }))
 
-// Port
-const port = process.env.PORT ?? 3000
+  // Routes
+  app.get('/', (req: Request, res: Response) => {
+    res.send('Hello World!')
+  })
 
-app.listen(port, () => {
-  console.log(`🚀 Server is running at http://localhost:${port}`)
-})
+  // Port
+  const port = process.env.PORT ?? 3000
+
+  app.listen(port, () => {
+    console.log(`🚀 Server is running at http://localhost:${port}`)
+  })
+}
+
+App().catch(console.log)
