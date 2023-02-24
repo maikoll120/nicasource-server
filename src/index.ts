@@ -1,8 +1,10 @@
-import express, { type Express, type Request, type Response } from 'express'
+import express, { type Express } from 'express'
 import logger from 'morgan'
 import { PORT } from './lib/config'
 import { initConnection } from './database'
 import './models'
+import routes from './routes'
+import { errorHandler } from './middlewares'
 
 async function App () {
   // Database
@@ -17,9 +19,10 @@ async function App () {
   app.use(express.urlencoded({ extended: false }))
 
   // Routes
-  app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
-  })
+  routes(app)
+
+  // Error handler
+  app.use(errorHandler)
 
   // Listener
   app.listen(PORT, () => {

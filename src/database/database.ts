@@ -8,7 +8,7 @@ export const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 
 export const initConnection = async () => {
   try {
-    await sequelize.sync({ force: true })
+    await sequelize.sync({ force: false })
     console.log('🟢 Database successfully connected')
   } catch (error) {
     console.error('🔴 Unable to connect to the database')
