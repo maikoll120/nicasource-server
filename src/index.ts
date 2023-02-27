@@ -1,5 +1,6 @@
 import express, { type Express } from 'express'
 import logger from 'morgan'
+import cors from 'cors'
 import { PORT } from './lib/config'
 import { initConnection } from './database'
 import './models'
@@ -15,6 +16,7 @@ async function App () {
 
   // Middlewares
   app.use(logger('dev'))
+  app.use(cors())
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
 

@@ -9,16 +9,21 @@ export const getAll = async (req: JWTRequest, res: Response, next: NextFunction)
     const currentUserId = req.auth?.sub ?? ''
     const isOwned = !!req.query.owned
     const isLiked = !!req.query.liked
+    const specificUser = req.query.userid ? String(req.query.userid) : ''
 
     const querySelect = 'SELECT v.* '
     let queryFrom = 'FROM videos v '
     let queryWhere = 'WHERE 1=1 '
 
-    if (!isOwned) { queryWhere += 'AND v.published = true ' }
-    if (isOwned) { queryWhere += `AND v."userId" = '${currentUserId}' ` }
-    if (isLiked) {
-      queryFrom += ',likes l '
-      queryWhere += 'AND v.id = l."videoId" '
+    if (specificUser) {
+      queryWhere += `AND v."userId" = '${specificUser}' `
+    } else {
+      if (!isOwned) { queryWhere += 'AND v.published = true ' }
+      if (isOwned) { queryWhere += `AND v."userId" = '${currentUserId}' ` }
+      if (isLiked) {
+        queryFrom += ',likes l '
+        queryWhere += 'AND v.id = l."videoId" '
+      }
     }
 
     const queryOrderBy = 'ORDER BY v."createdAt" DESC'
@@ -42,13 +47,13 @@ export const getAll = async (req: JWTRequest, res: Response, next: NextFunction)
 
 export const getSummary = async (req: JWTRequest, res: Response, next: NextFunction) => {
   try {
+    const userId = req.auth?.sub
     const videoId = req.params.id
 
     const video = await Video.findOne({
-      attributes: ['id', 'title', 'description', 'url', 'createdAt'],
+      attributes: ['id', 'title', 'description', 'url', 'published', 'createdAt'],
       where: {
-        id: videoId,
-        published: true
+        id: videoId
       },
       include: {
         model: User,
@@ -56,7 +61,7 @@ export const getSummary = async (req: JWTRequest, res: Response, next: NextFunct
       }
     })
 
-    if (!video) { return res.send({}) }
+    if (!video || (video.dataValues.published === false && video.dataValues.user.id !== userId)) { return res.send({}) }
 
     res.send(video)
   } catch (error) {

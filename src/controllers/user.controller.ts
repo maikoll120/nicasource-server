@@ -4,6 +4,7 @@ import { User, Follower } from '../models'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { SALT_ROUNDS, SECRET, TOKEN_EXPIRE } from '../lib/config'
+import { sequelize } from '../database'
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -61,6 +62,37 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
 export const getAll = async (req: JWTRequest, res: Response, next: NextFunction) => {
   try {
+    const currentUserId = req.auth?.sub ?? ''
+    const isFollowed = !!req.query.followed
+
+    const querySelect = 'SELECT u.* '
+    let queryFrom = 'FROM users u '
+    let queryWhere = 'WHERE 1=1 '
+
+    if (isFollowed) {
+      queryFrom += ',followers f '
+      queryWhere += `AND f."userIdOrigin" = '${currentUserId}' `
+      queryWhere += 'AND u.id = f."userIdTarget" '
+    }
+
+    const queryOrderBy = 'ORDER BY u.name DESC'
+
+    const [results] = await sequelize.query(querySelect + queryFrom + queryWhere + queryOrderBy)
+
+    console.log(isFollowed)
+    res.send(results.map((user: any) => {
+      const { id, name } = user
+
+      return {
+        id,
+        name
+      }
+    }))
+  } catch (error) {
+    next(error)
+  }
+
+  /* try {
     const userList = await User.findAll()
 
     res.send(userList.map(user => {
@@ -72,7 +104,7 @@ export const getAll = async (req: JWTRequest, res: Response, next: NextFunction)
     }))
   } catch (error) {
     next(error)
-  }
+  } */
 }
 
 export const getProfile = async (req: JWTRequest, res: Response, next: NextFunction) => {
