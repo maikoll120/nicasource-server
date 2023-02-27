@@ -6,6 +6,7 @@ Server-side app for Videos Creator Platform
 
 To run this project, you need to add a .env file at root dir for basic configurations.
 
+```bash
 PORT=3000
 DB_HOST='nicasource-db'
 DB_USER='postgres'
@@ -15,6 +16,7 @@ DB_PORT=5432
 SALT_ROUNDS=10
 SECRET="gJ4IQg8KmW1cjIBZEluROSWua3HEU8hS"
 TOKEN_EXPIRE=3600000
+```
 
 
 ## Available Scripts ONLY DOCKER
